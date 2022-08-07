@@ -30,7 +30,7 @@ TBD
     ├── data                    # Data files - used to store metrics found in experiments.
     ├── exploratory-notebooks   # Initial notebooks, testing adversarial methods.
     ├── full-experiments        # Folder for benchmarking experiment code.
-    ├── effectivenesses.ipynb   # Final results notebooks, plots 
+    ├── final-results.ipynb     # Final results notebook, plots 
     ├── LICENSE
     ├── requirements.txt        # Standard python requirements file.
     └── README.md
