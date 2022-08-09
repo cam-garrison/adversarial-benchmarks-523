@@ -19,7 +19,7 @@ class FGSM_Attack(object):
         # find the sign of the gradient
         sign_img_grad = image_grad.sign()
         pert_img = image + self.epsilon * sign_img_grad  # change img
-        return pert_img
+        return pert_img, torch.linalg.norm((self.epsilon * sign_img_grad))
 
     def fgsm(self, image, label):
 
