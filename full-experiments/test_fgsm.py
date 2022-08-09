@@ -6,7 +6,7 @@ from glob import glob
 import cv2
 import matplotlib.pyplot as plt
 from PIL import Image
-import scipy.io
+import scipy.misc
 from tqdm import trange
 import sys
 
@@ -15,7 +15,7 @@ sys.path.insert(0, "src")
 from alexnet import model as alexnet_model, preprocess as alexnet_preprocess
 
 from labels import labels, path_meta, path_synset_words
-from main import get_alexnet_img, get_labels, get_paths, disp_img
+from main import get_alexnet_img, get_labels, get_paths
 
 from fgsm import FGSM_Attack
 
@@ -35,6 +35,20 @@ val_data_labels = Path(
 )
 
 
+def disp_img(path):
+    img = cv2.imread(path)
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    plt.imshow(img_rgb)
+    plt.show()
+
+    im = Image.open(path)
+
+    # alexnet preprocessing
+    im_prepro = alexnet_preprocess(im)
+    plt.imshow(im_prepro.permute(1, 2, 0))
+    plt.show()
+
+
 if __name__ == "__main__":
     # send model to the device
     alexnet_model.to(device)
@@ -49,6 +63,8 @@ if __name__ == "__main__":
 
     img_path = img_paths[10]
 
+    disp_img(img_path)
+
     this_img = get_alexnet_img(img_path)
     this_img.to(device)
 
@@ -58,9 +74,9 @@ if __name__ == "__main__":
     preds = torch.nn.functional.softmax(logits, dim=1)
     argmax = int(torch.argmax(preds))
     if argmax == y_val[10]:
-        print("correct pred")
+        print("correct pred\n")
 
-    print(preds[0][argmax])
+    print("pred class", labels[y_val[10].item()], "with conf", preds[0][argmax])
 
     # confidence threshold
     if preds[0][argmax] > 0.50:
@@ -74,3 +90,11 @@ if __name__ == "__main__":
             print("didnt change pred")
         else:
             print("prediction is now wrong")
+            print(
+                "pred class",
+                labels[y_val[perted_argmax].item()],
+                "with conf",
+                perted_preds[0][perted_argmax],
+            )
+            plt.imshow(perted_img.cpu().detach().permute(1, 2, 0))
+            plt.show()
