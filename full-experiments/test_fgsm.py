@@ -83,6 +83,7 @@ if __name__ == "__main__":
         print("passed conf check, do attack")
 
         perted_img, norm = fgsm_att.fgsm(this_img, y_val[10])
+        print("norm is", norm)
         perted_logits = alexnet_model(perted_img.view(-1, 3, 224, 224))
         perted_preds = torch.nn.functional.softmax(perted_logits, dim=1)
         perted_argmax = int(torch.argmax(perted_preds))
