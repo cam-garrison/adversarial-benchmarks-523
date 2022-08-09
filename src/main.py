@@ -7,13 +7,16 @@ import cv2
 import matplotlib.pyplot as plt
 from PIL import Image
 import scipy.io
+from tqdm import trange
 
 from alexnet import model as alexnet_model, preprocess as alexnet_preprocess
 from resnet import model as resnet_model, preprocess as resnet_preprocess
 from googlenet import model as googlenet_model, preprocess as googlenet_preprocess
 from labels import labels, path_meta, path_synset_words
 
-IMG_INDEX = 0
+from simba import SimBA_Attack
+
+IMG_INDEX = 4 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -110,15 +113,50 @@ def get_googlenet_img(path):
 
 if __name__ == "__main__":
 
+    # send model to the device
+    alexnet_model.to(device)
+
+    # get the paths to all images
     img_paths = get_paths()
 
+    # get the ground truth labels
     y_val = get_labels()
-    print(f"LABEL: {labels[ int(y_val[ IMG_INDEX ]) ]}")
 
-    img_path = img_paths[IMG_INDEX]
+    correct = 0
+    miss = 0
+    for i in trange(50000):
+        img_path = img_paths[i]
 
-    # disp_img(img_path)
+        try:
+            this_img = get_alexnet_img(img_path)
+            this_img.to(device)
 
-    this_img = get_googlenet_img(img_path)
+            with torch.no_grad():
+                logits = alexnet_model(this_img.view(-1,3,224,224))
 
-    print(googlenet_model(this_img))
+            preds = torch.nn.functional.softmax(logits, dim=1)
+        except:
+            miss += 1
+            continue
+
+        argmax = int(torch.argmax(preds))
+
+        if argmax == y_val[i]:
+            correct += 1    
+
+            # confidence threshold
+            if preds[0][argmax] > 0.85:
+                print(f"running simba: {preds[0][argmax]}")
+
+                attack = SimBA_Attack(alexnet_model)
+                x, pert_history, last_probs, finished = attack.simba(this_img, y_val[i], epsilon=0.8, steps=20000)
+                if finished:
+                    plt.imshow(pert_history.reshape(224,224,3))
+                    plt.show()
+
+        if i % 5000 == 0 and i > 0:
+            print(f"Miss: { miss }")
+            print(f"Percentage correct {correct / (i - miss)}")
+
+    print(f"Miss: {miss}")
+    print(f"Percentage correct {correct / (50000 - miss)}")
