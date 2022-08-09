@@ -4,9 +4,9 @@ Benchmarking adversarial techniques effectiveness against well-known ImageNet cl
 
 ## Group Members
 
-- James Kunstle - jkunstle@bu.edu - [@JamesKunstle](github.com/JamesKunstle).
+- James Kunstle - jkunstle@bu.edu - [@JamesKunstle](https://github.com/JamesKunstle).
 
-- Cameron Garrison - cgarriso@bu.edu - [@cam-garrison](github.com/cam-garrison).
+- Cameron Garrison - cgarriso@bu.edu - [@cam-garrison](https://github.com/cam-garrison).
 
 ## Citations
 
