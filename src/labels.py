@@ -1002,5 +1002,5 @@ labels = {0: 'tench, Tinca tinca',
  998: 'ear, spike, capitulum',
  999: 'toilet tissue, toilet paper, bathroom tissue'}
 
-path_synset_words = Path("/Users/jameskunstle/Documents/student/523/project/imagenet/ILSVRC2012_devkit_t12/data/synset_words.txt")
-path_meta = Path("/Users/jameskunstle/Documents/student/523/project/imagenet/ILSVRC2012_devkit_t12/data/meta.mat")
+path_synset_words = Path("./imagenet/ILSVRC2012_devkit_t12/data/synset_words.txt")
+path_meta = Path("./imagenet/ILSVRC2012_devkit_t12/data/meta.mat")

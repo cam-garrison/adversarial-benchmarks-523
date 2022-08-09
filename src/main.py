@@ -13,7 +13,7 @@ from resnet import model as resnet_model, preprocess as resnet_preprocess
 from googlenet import model as googlenet_model, preprocess as googlenet_preprocess
 from labels import labels, path_meta, path_synset_words
 
-IMG_INDEX = 0 
+IMG_INDEX = 0
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -26,12 +26,14 @@ print(f"Device used: {device}")
 """
 
 val_data_path = Path("./imagenet/val/ILSVRC2012_img_val/")
-val_data_labels = Path("/Users/jameskunstle/Documents/student/523/\
-project/imagenet/ILSVRC2012_devkit_t12/data/ILSVRC2012_validation_ground_truth.txt")
+val_data_labels = Path(
+    "./imagenet/ILSVRC2012_devkit_t12/data/ILSVRC2012_validation_ground_truth.txt")
+
 
 def get_paths():
     image_paths = sorted(glob(str(val_data_path/"*")))
     return image_paths
+
 
 def get_labels():
     meta = scipy.io.loadmat(str(path_meta))
@@ -39,9 +41,9 @@ def get_labels():
     synset_to_name = {}
 
     for i in range(1000):
-        ilsvrc2012_id = int(meta["synsets"][i,0][0][0][0])
-        synset = meta["synsets"][i,0][1][0]
-        name = meta["synsets"][i,0][2][0]
+        ilsvrc2012_id = int(meta["synsets"][i, 0][0][0][0])
+        synset = meta["synsets"][i, 0][1][0]
+        name = meta["synsets"][i, 0][2][0]
         original_idx_to_synset[ilsvrc2012_id] = synset
         synset_to_name[synset] = name
 
@@ -53,11 +55,13 @@ def get_labels():
             synset_to_keras_idx[parts[0]] = idx
             keras_idx_to_name[idx] = " ".join(parts[1:])
 
-    convert_original_idx_to_keras_idx = lambda idx: synset_to_keras_idx[original_idx_to_synset[idx]]
+    def convert_original_idx_to_keras_idx(
+        idx): return synset_to_keras_idx[original_idx_to_synset[idx]]
 
-    with open(str(val_data_labels),"r") as f:
+    with open(str(val_data_labels), "r") as f:
         y_val = f.read().strip().split("\n")
-        y_val = np.array([convert_original_idx_to_keras_idx(int(idx)) for idx in y_val])
+        y_val = np.array([convert_original_idx_to_keras_idx(int(idx))
+                         for idx in y_val])
 
     return y_val
 
@@ -72,33 +76,37 @@ def disp_img(path):
 
     # alexnet preprocessing
     im_prepro = alexnet_preprocess(im)
-    im_re = im_prepro.reshape(224,224,3)
+    im_re = im_prepro.reshape(224, 224, 3)
     plt.imshow(im_re)
     plt.show()
 
     # resnet preprocessing
     im_prepro = resnet_preprocess(im)
-    im_re = im_prepro.reshape(224,224,3)
+    im_re = im_prepro.reshape(224, 224, 3)
     plt.imshow(im_re)
     plt.show()
 
     # googlenet preprocessing
     im_prepro = googlenet_preprocess(im)
-    im_re = im_prepro.reshape(224,224,3)
+    im_re = im_prepro.reshape(224, 224, 3)
     plt.imshow(im_re)
     plt.show()
+
 
 def get_alexnet_img(path):
     img = Image.open(path)
     return alexnet_preprocess(img)
 
+
 def get_resnet_img(path):
     img = Image.open(path)
     return resnet_preprocess(img)
 
+
 def get_googlenet_img(path):
     img = Image.open(path)
     return googlenet_preprocess(img)
+
 
 if __name__ == "__main__":
 
@@ -109,7 +117,7 @@ if __name__ == "__main__":
 
     img_path = img_paths[IMG_INDEX]
 
-    #disp_img(img_path)
+    # disp_img(img_path)
 
     this_img = get_googlenet_img(img_path)
 
