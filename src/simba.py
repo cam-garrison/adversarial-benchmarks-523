@@ -1,5 +1,6 @@
 import torch as nn
 import torch.nn.functional as F
+import numpy as np
 
 from tqdm import trange
 
@@ -13,18 +14,25 @@ class SimBA_Attack(object):
             print("Model not defined!")
             return
 
-        with nn.no_grad():
-            output = self.model( x.view(-1, 3, 224, 224) )
+        self.model.eval()
 
-        sf = F.softmax( output, dim=1 )
-        probs = list( sf.numpy() )
+        with nn.no_grad():
+            logits = self.model( x.view(-1, 3, 224, 224) )
+
+        preds = F.softmax( logits, dim=1 )
+        # copy result to the cpu 
+        preds = preds.cpu()
+        probs = preds.numpy()
         
         return probs[0]
     
-    def simba( self, x, y, epsilon=0.05, steps=100000 ):
+    def simba( self, x, y, device, epsilon=0.05, steps=100000):
         if self.model is None:
             print("Model not defined!")
             return
+        
+        self.model = self.model.to(device)
+        x = x.to(device)
     
         #last classification distribution (softmax)
         #of input image.
@@ -40,13 +48,14 @@ class SimBA_Attack(object):
         pert_history = nn.zeros( ndims )
 
         finished = False
+        num_changes = 0
         
-        for i in trange( steps ):
+        for i in range( steps ):
             
-            #if the model misclassifies the input
-            if( last_probs[y] != last_probs.max() ):
-                print(last_probs[y])
-                print(last_probs.max())
+            # if the true label is no longer the entry
+            # with the highest probability in the prob dist,
+            # # we're done w/ the untargeted attack. 
+            if y != np.argmax(last_probs):
                 finished = True
                 break
             
@@ -55,28 +64,26 @@ class SimBA_Attack(object):
             pert[ perm[ i % ndims ] ] = epsilon
             
             
-            x_temp = (x - pert.view(x.size()))#.clamp(0, 1)
+            x_temp = (x.cpu() - pert.view(x.size()))#.clamp(0, 1)
+            x_temp = x_temp.to(device)
             left_prob = self.get_probs( x_temp )
             
-            if( left_prob[y] <= last_probs[y] ):
-                print()
-                print(f"Acc: {last_probs[y]}")
-                print()
+            if( left_prob[y] < last_probs[y] ):
                 x = x_temp
                 last_probs = left_prob
                 pert_history -= pert
+                num_changes += 1
                 
             else:
-                x_temp = (x + pert.view(x.size()))#.clamp(0, 1)
+                x_temp = (x.cpu() + pert.view(x.size()))#.clamp(0, 1)
+                x_temp = x_temp.to(device)
                 right_prob = self.get_probs( x_temp )
                 
-                if( right_prob[y] <= last_probs[y] ):
-                    print()
-                    print(f"Acc: {last_probs[y]}")
-                    print()
+                if( right_prob[y] < last_probs[y] ):
                     x = x_temp
                     last_probs = right_prob
                     pert_history += pert
-        
-        return x, pert_history, last_probs, finished 
+                    num_changes += 1
+
+        return x.cpu(), pert_history, last_probs, finished,  num_changes, i
 
