@@ -50,7 +50,7 @@ class SimBA_Attack(object):
         finished = False
         num_changes = 0
         
-        for i in trange( steps ):
+        for i in range( steps ):
             
             # if the true label is no longer the entry
             # with the highest probability in the prob dist,
@@ -85,5 +85,5 @@ class SimBA_Attack(object):
                     pert_history += pert
                     num_changes += 1
 
-        return x.cpu(), pert_history, last_probs, finished,  num_changes
+        return x.cpu(), pert_history, last_probs, finished,  num_changes, i
 
