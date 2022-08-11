@@ -19,9 +19,9 @@ print(f"Device used: {device}")
 
 # loading in our 1,000 images used to test SimBA
 # results/defined in SimBA_frozen.ipynb
-labels_path = Path(".results/used_labels.txt")
-images_names_path = Path(".results/used_images.txt")
-images_subset_path = Path(".results/subset_used/")
+labels_path = Path("experiments/results/used_labels.txt")
+images_names_path = Path("experiments/results/used_images.txt")
+images_subset_path = Path("experiments/results/subset_used/")
 
 
 def get_names_labels():
@@ -38,7 +38,7 @@ def get_names_labels():
 
 
 LABELS, NAMES = get_names_labels()
-PATHS = ["./results/subset_used/" + p for p in NAMES]
+PATHS = ["experiments/results/subset_used/" + p for p in NAMES]
 
 
 # i/o helpers
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     img_paths = PATHS
 
     # get the ground truth labels
-    y_val = LABELS
+    y_val = np.array(LABELS, dtype=int)
     y_val = torch.from_numpy(y_val)
 
     img_path = img_paths[42]

@@ -9,6 +9,7 @@ from PIL import Image
 import scipy.misc
 from tqdm import trange
 import sys
+import csv
 
 from src.alexnet import model as alexnet_model, preprocess as alexnet_preprocess
 from data.labels import labels, path_meta, path_synset_words
@@ -18,9 +19,9 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # loading in our 1,000 images used to test SimBA
 # results/defined in SimBA_frozen.ipynb
-labels_path = Path(".results/used_labels.txt")
-images_names_path = Path(".results/used_images.txt")
-images_subset_path = Path(".results/subset_used/")
+labels_path = Path("experiments/results/used_labels.txt")
+images_names_path = Path("experiments/results/used_images.txt")
+images_subset_path = Path("experiments/results/subset_used/")
 
 
 def get_names_labels():
@@ -37,7 +38,22 @@ def get_names_labels():
 
 
 LABELS, NAMES = get_names_labels()
-PATHS = ["./results/subset_used/" + p for p in NAMES]
+PATHS = ["experiments/results/subset_used/" + p for p in NAMES]
+
+CSV_HEADER = [
+    "epsilon",
+    "pct_misclassified",
+    "num_misclassified",
+    "total_attempted",
+    "avg_mask_norm",
+]
+
+with open("experiments/data/fgsm_results.csv", "w", encoding="UTF8", newline="") as f:
+    writer = csv.writer(f)
+
+    # write the header
+    writer.writerow(CSV_HEADER)
+f.close()
 
 
 def get_alexnet_img(path):
@@ -51,12 +67,12 @@ if __name__ == "__main__":
     # set model to eval mode (no dropout etc)
     alexnet_model.eval()
 
-    for ep in [0.001, 0.02, 0.05]:
+    for ep in [0.001, 0.01, 0.02, 0.05]:
         # get the paths to all images
         img_paths = PATHS
 
         # get the ground truth labels
-        y_val = LABELS
+        y_val = np.array(LABELS, dtype=int)
         y_val = torch.from_numpy(y_val)
 
         # init variable to count number of examples
@@ -68,8 +84,8 @@ if __name__ == "__main__":
         fgsm_att = FGSM_Attack(alexnet_model, epsilon=ep)
 
         # iterate thru
-        # for i in trange(len(img_paths)):
-        for i in trange(1000):
+        for i in trange(len(img_paths)):
+
             # get image, put it in device
             img_path = img_paths[i]
             try:
@@ -112,3 +128,19 @@ if __name__ == "__main__":
             "\n",
             total_norm / num_examples,
         )
+        with open(
+            "experiments/data/fgsm_results.csv", "a", encoding="UTF8", newline=""
+        ) as f:
+            writer = csv.writer(f)
+
+            # write the header
+            writer.writerow(
+                [
+                    ep,
+                    num_perturbed / num_examples,
+                    num_perturbed,
+                    num_examples,
+                    total_norm / num_examples,
+                ]
+            )
+        f.close()
