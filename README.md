@@ -1,6 +1,6 @@
 # Adversarial Benchmarking - Final Project for CS523 Boston University
 
-Benchmarking adversarial techniques effectiveness against well-known ImageNet classifiers.
+Benchmarking Adversarial Attacks against AlexNet
 
 ## Group Members
 
