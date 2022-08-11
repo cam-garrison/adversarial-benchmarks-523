@@ -48,7 +48,7 @@ CSV_HEADER = [
     "avg_mask_norm",
 ]
 
-with open("experiments/data/fgsm_results.csv", "w", encoding="UTF8", newline="") as f:
+with open("experiments/results/fgsm_results.csv", "w", encoding="UTF8", newline="") as f:
     writer = csv.writer(f)
 
     # write the header
@@ -62,10 +62,10 @@ def get_alexnet_img(path):
 
 
 if __name__ == "__main__":
-    # send model to the device
-    alexnet_model.to(device)
     # set model to eval mode (no dropout etc)
     alexnet_model.eval()
+    # send model to the device
+    alexnet_model = alexnet_model.to(device)
 
     for ep in [0.001, 0.01, 0.02, 0.05]:
         # get the paths to all images
@@ -92,7 +92,7 @@ if __name__ == "__main__":
                 this_img = get_alexnet_img(img_path)  # preprocess it too
             except:
                 continue
-            this_img.to(device)
+            this_img = this_img.to(device)
 
             # lets pass it into the model, and see if its right.
             logits = alexnet_model(this_img.view(-1, 3, 224, 224))
@@ -129,7 +129,7 @@ if __name__ == "__main__":
             total_norm / num_examples,
         )
         with open(
-            "experiments/data/fgsm_results.csv", "a", encoding="UTF8", newline=""
+            "experiments/results/fgsm_results.csv", "a", encoding="UTF8", newline=""
         ) as f:
             writer = csv.writer(f)
 

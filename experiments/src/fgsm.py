@@ -37,6 +37,9 @@ class FGSM_Attack(object):
 
         # get the loss
         loss_func = nn.CrossEntropyLoss()
+        logits = logits.to(self.device)
+        label = label.to(self.device)
+        loss_func = loss_func.to(self.device)
         loss = loss_func(logits, label)
 
         loss.backward(retain_graph=True)
