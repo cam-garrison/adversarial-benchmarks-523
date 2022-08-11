@@ -128,9 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Imagenet folder
-imagenet/
-
 # mac/vscode specific
 .DS_Store
 .vscode/
