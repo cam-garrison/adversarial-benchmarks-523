@@ -8,33 +8,40 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import scipy.misc
 from tqdm import trange
-import sys
 
-sys.path.insert(0, "src")
-
-from alexnet import model as alexnet_model, preprocess as alexnet_preprocess
-
-from labels import labels, path_meta, path_synset_words
-from main import get_alexnet_img, get_labels, get_paths
-
-from fgsm import FGSM_Attack
+from src.alexnet import model as alexnet_model, preprocess as alexnet_preprocess
+from data.labels import labels, path_meta, path_synset_words
+from src.fgsm import FGSM_Attack
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 print(f"Device used: {device}")
 
-"""
-     Data loading from: 
-        https://github.com/calebrob6/imagenet_validation/blob/master/\
-        1.%20Preprocess%20ImageNet%20validation%20set.ipynb
-"""
-
-val_data_path = Path("./imagenet/val/ILSVRC2012_img_val/")
-val_data_labels = Path(
-    "./imagenet/ILSVRC2012_devkit_t12/data/ILSVRC2012_validation_ground_truth.txt"
-)
+# loading in our 1,000 images used to test SimBA
+# results/defined in SimBA_frozen.ipynb
+labels_path = Path(".results/used_labels.txt")
+images_names_path = Path(".results/used_images.txt")
+images_subset_path = Path(".results/subset_used/")
 
 
+def get_names_labels():
+    with open(labels_path, "r") as f:
+        lines = f.readlines()
+    labels = [line.rstrip() for line in lines]
+    f.close()
+
+    with open(images_names_path, "r") as f:
+        lines = f.readlines()
+    names = [line.rstrip() for line in lines]
+    f.close()
+    return labels, names
+
+
+LABELS, NAMES = get_names_labels()
+PATHS = ["./results/subset_used/" + p for p in NAMES]
+
+
+# i/o helpers
 def disp_img(path):
     img = cv2.imread(path)
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -49,45 +56,50 @@ def disp_img(path):
     plt.show()
 
 
+def get_alexnet_img(path):
+    img = Image.open(path)
+    return alexnet_preprocess(img)
+
+
 if __name__ == "__main__":
     # send model to the device
     alexnet_model.to(device)
     alexnet_model.eval()
 
     # get the paths to all images
-    img_paths = get_paths()
+    img_paths = PATHS
 
     # get the ground truth labels
-    y_val = get_labels()
+    y_val = LABELS
     y_val = torch.from_numpy(y_val)
 
-    img_path = img_paths[10]
+    img_path = img_paths[42]
 
     disp_img(img_path)
 
     this_img = get_alexnet_img(img_path)
     this_img.to(device)
 
-    fgsm_att = FGSM_Attack(alexnet_model)
+    fgsm_att = FGSM_Attack(alexnet_model, epsilon=0.02)
 
     logits = alexnet_model(this_img.view(-1, 3, 224, 224))
     preds = torch.nn.functional.softmax(logits, dim=1)
     argmax = int(torch.argmax(preds))
-    if argmax == y_val[10]:
+    if argmax == y_val[42]:
         print("correct pred\n")
 
-    print("pred class", labels[y_val[10].item()], "with conf", preds[0][argmax])
+    print("pred class", labels[y_val[42].item()], "with conf", preds[0][argmax])
 
     # confidence threshold
     if preds[0][argmax] > 0.50:
         print("passed conf check, do attack")
 
-        perted_img, norm = fgsm_att.fgsm(this_img, y_val[10])
+        perted_img, norm = fgsm_att.fgsm(this_img, y_val[42])
         print("norm is", norm)
         perted_logits = alexnet_model(perted_img.view(-1, 3, 224, 224))
         perted_preds = torch.nn.functional.softmax(perted_logits, dim=1)
         perted_argmax = int(torch.argmax(perted_preds))
-        if perted_argmax == y_val[10]:
+        if perted_argmax == y_val[42]:
             print("didnt change pred")
         else:
             print("prediction is now wrong")
