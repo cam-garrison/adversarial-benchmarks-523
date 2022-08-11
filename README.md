@@ -2,6 +2,8 @@
 
 Benchmarking Adversarial Attacks against AlexNet
 
+Presentation Link: https://docs.google.com/presentation/d/1UXHFWQ0afXJib2Vdh4D6hqRmEcu75T1tWALIkn3cmXk/edit?usp=sharing 
+
 ## Group Members
 
 - James Kunstle - jkunstle@bu.edu - [@JamesKunstle](https://github.com/JamesKunstle).
