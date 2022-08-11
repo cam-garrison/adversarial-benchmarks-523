@@ -12,10 +12,6 @@ Benchmarking adversarial techniques effectiveness against well-known ImageNet cl
 
 - "AlexNet", as introduced in the paper "ImageNet Classification with Deep Convolutional Neural Networks" by Alex Krizhevsky et al. [(original paper)](https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf)
 
-- "ResNet", as introduced in the paper "Deep Residual Learning for Image Recognition" by Kaiming He et al. [(original paper)](https://arxiv.org/pdf/1512.03385.pdf).
-
-- "GoogleNet", implementation based on the paper "Going Deeper with Convolutions" by Christian Szegedy et al. [(orginal paper)](https://arxiv.org/pdf/1409.4842.pdf). 
-
 - "SimBA", as introduced in the paper "Simple Black-box Adversarial Attacks" by Chuan Guo et al. [(original paper)](https://arxiv.org/abs/1905.07121). 
 
 - "Fast Gradient Sign Method (FGSM)" as intoduced in the paper "Explaining and Harnessing Adversarial Examples" by Ian J. Goodfellow et al. [(original paper)](https://arxiv.org/abs/1412.6572).
