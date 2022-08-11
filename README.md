@@ -21,16 +21,49 @@ Benchmarking adversarial techniques effectiveness against well-known ImageNet cl
 - "Fast Gradient Sign Method (FGSM)" as intoduced in the paper "Explaining and Harnessing Adversarial Examples" by Ian J. Goodfellow et al. [(original paper)](https://arxiv.org/abs/1412.6572).
 
 
-## Usage
+## **Usage**
 
-TBD
+### **Dependencies:**
+
+We have provided `requirements.txt`. We recommend running 
+
+```
+pip install -r requirements.txt
+```
+
+in a python venv to get all the requisite package versions.
+
+### **Reproducing Results**
+
+We have selected a subset of the ILSVRC Imagenet 2012 validation dataset for our usage. 
+
+To see how that subset of data was selected, and how SimBA was ran on it, see `experiments/simba_frozen.ipynb`. This notebook also includes how to replicate those results by downloading the validation set. 
+
+That yields us with ~1000 images from the ImageNet dataset. 
+
+To replicate the experiment results found with FGSM, simply run 
+```
+python experiments/fgsm_experiment.py
+```
+
+**FROM THE ROOT DIRECTORY OF THE REPOSITORY^**
+
+This will repopulate the csv of metrics and results in `experiments/results/fgsm_results.csv`.
+
+To view an image attacked with FGSM, run 
+
+```
+python experiments/test_fgsm.py
+```
+
+**FROM THE ROOT DIRECTORY OF THE REPOSITORY^**
 
 ## Structure:
 
-    ├── data                    # Data files - used to store metrics found in experiments.
-    ├── exploratory-notebooks   # Initial notebooks, testing adversarial methods.
-    ├── full-experiments        # Folder for benchmarking experiment code.
-    ├── final-results.ipynb     # Final results notebook, plots 
+    ├── experiments             
+        ├── data     # Store label map, ImageNet data.
+        ├── results  # Store subset of dataset, experiment output csvs. 
+        ├── src      # Store attacks, alexet loader.
     ├── LICENSE
     ├── requirements.txt        # Standard python requirements file.
     └── README.md
