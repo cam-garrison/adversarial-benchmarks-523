@@ -23,23 +23,31 @@ Presentation Link: https://docs.google.com/presentation/d/1UXHFWQ0afXJib2Vdh4D6h
 
 ### **Dependencies:**
 
-We have provided `requirements.txt`. We recommend running 
+We have provided `requirements.txt`. We recommend running:
 
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 in a python venv to get all the requisite package versions.
 
 ### **Reproducing Results**
 
-We have selected a subset of the ILSVRC Imagenet 2012 validation dataset for our usage. 
+We attack the AlexNet model w.r.t 1000 images that the model correctly identifies. These images are chosen randomly from the ILSVRC 2012 Imagenet Validation set.
 
-To see how that subset of data was selected, and how SimBA was ran on it, see `experiments/simba_frozen.ipynb`. This notebook also includes how to replicate those results by downloading the validation set. 
+In our notebook `experiments/SimBA_frozen.ipynb` we sample sample the 1000 images and run our SimBA attack against them. This attack is implemented in `experiements/src/simba.py`.
 
-That yields us with ~1000 images from the ImageNet dataset. 
+The results from this attack are stored in the folder `experiments/results/` and includes the list of all images that the attack was successful on (used\_images.txt), their labels (used\_labels.txt), and 
+the masks that were created from the attack (sorted\_outputs.p). This final file is too large to go on Github so it's at this link: 
+
+[Drive Link](https://drive.google.com/drive/folders/1VJ9aDBnFXGI6_92b97ICLRIO9mg7WCAY?usp=sharing)
+
+Our analysis of the data from the SimBA attack is in the notebook `experiments/analysis.ipynb`.
+
+We attack these same images with FGSM.
 
 To replicate the experiment results found with FGSM, simply run 
+
 ```
 python experiments/fgsm_experiment.py
 ```
@@ -56,11 +64,13 @@ python experiments/test_fgsm.py
 
 **FROM THE ROOT DIRECTORY OF THE REPOSITORY^**
 
+Our analysis on the attack done by FGSM is done in the notebook `experiments/fgsm_analysis.ipynb'
+
 ## Structure:
 
     ├── experiments             
-        ├── data     # Store label map, ImageNet data.
-        ├── results  # Store subset of dataset, experiment output csvs. 
+        ├── data     # Store label map, metadata, ImageNet data.
+        ├── results  # Store subset of dataset, experiment output csvs and data structures.
         ├── src      # Store attacks, alexet loader.
     ├── LICENSE
     ├── requirements.txt        # Standard python requirements file.
