@@ -64,7 +64,7 @@ python experiments/test_fgsm.py
 
 **FROM THE ROOT DIRECTORY OF THE REPOSITORY^**
 
-Our analysis on the attack done by FGSM is done in the notebook `experiments/fgsm_analysis.ipynb'
+Our analysis on the attack done by FGSM is done in the notebook `experiments/fgsm_analysis.ipynb`.
 
 ## Structure:
 
